@@ -1,0 +1,2 @@
+include ':app', ':android_permission_aop'
+rootProject.name='android_permission'

@@ -1,0 +1,9 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.permission">
+    <application>
+        <activity
+            android:screenOrientation="portrait"
+            android:name="com.permision.permissions.PermissionActivity"
+            android:theme="@style/OnePixelPermissionActivity" />
+    </application>
+</manifest>
