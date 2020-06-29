@@ -1,4 +1,4 @@
-package com.permission
+package com.permission.aop
 
 import android.Manifest
 import androidx.appcompat.app.AppCompatActivity

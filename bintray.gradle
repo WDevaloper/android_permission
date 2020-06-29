@@ -5,7 +5,7 @@ apply plugin: 'com.github.dcendents.android-maven'
 
 //配置发布版本----------satrt----------
 //配置版本
-version = "1.0"
+version = "1.0.1"
 group = "com.github"         //todo Maven Group ID for the artifact，一般填你唯一的包名
 //配置发布版本----------end----------
 
@@ -53,9 +53,24 @@ install {
     }
 }
 
+
 // 强制 Java/JavaDoc 等的编码为 UTF-8
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
+}
+
+
+//生成源文件
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+
+
+//上传到JCenter所需要的源码文件
+artifacts {
+    archives sourcesJar
 }
 
 def BINTRAY_USER = 'fayou'//todo your bintray user name   bintray的用户名,用户名不是组织名
