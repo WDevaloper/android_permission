@@ -1,0 +1,90 @@
+// 应用插件
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.github.dcendents.android-maven'
+
+
+//配置发布版本----------satrt----------
+//配置版本
+version = "1.0"
+group = "com.github"         //todo Maven Group ID for the artifact，一般填你唯一的包名
+//配置发布版本----------end----------
+
+
+def baseUrl = 'https://github.com/WDevaloper/android_permission'//todo 项目的主页
+def gitUrl = baseUrl//todo Git仓库的url
+def issueUrl = "${gitUrl}/issues"
+def siteUrl = baseUrl
+
+
+install {
+    repositories {
+        mavenInstaller {
+            // This generates POM.xml with proper paramters
+            pom.project {
+                packaging 'aar'
+
+                //添加项目描述
+                name 'Permission for Android'
+                url siteUrl
+                //设置开源证书信息
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                //添加开发者信息
+                developers {
+                    developer {
+                        id 'wangfayou'        //填写的一些基本信息
+                        name 'wangfayou'
+                        email 'coder.wangfayou@gmail.com'
+                    }
+                }
+
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+                }
+            }
+        }
+
+    }
+}
+
+// 强制 Java/JavaDoc 等的编码为 UTF-8
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+def BINTRAY_USER = 'fayou'//todo your bintray user name   bintray的用户名,用户名不是组织名
+def BINTRAY_APIKEY = 'a13bd2b94425edd2101f266c5d624ceb987b4ffb' //todo APIKEY
+
+//配置上传Bintray相关信息
+bintray {
+    user = BINTRAY_USER
+    key = BINTRAY_APIKEY
+    configurations = ['archives']
+    pkg {
+        repo = 'AndroidPermission' //todo 上传到中央仓库的名称（重要，仓库名称 repository）
+        name = 'android-permission-aop'
+        //todo 上传到jcenter 的项目名称（bintray上的包名就是项目名）需要记住的是：在bintray创建包时version contrl 填github项目地址或者其他版本控制地址
+        userOrg = 'develop-fayou'//todo 如果有组织就必须填写组织的名字，否则填写用户名称
+        desc = 'androidPermission - A flexible, stable, easy-to-use Android Permission Library'
+        // 项目描述
+        websiteUrl = siteUrl
+        issueTrackerUrl = issueUrl
+        vcsUrl = gitUrl
+        labels = ['android', 'permission']
+        licenses = ['Apache-2.0']
+        publish = true
+    }
+}
+
+//使用：
+//还没有审核通过的使用方式
+//在主gradle中添加：
+// 1、maven { url 'https://dl.bintray.com/develop-fayou/wangfayou-plugin' }
+// 2、classpath 'com.github.plugin:buildSrc:1.0.2'
+//在app gradle中添加：apply plugin: 'moduleComponent'
