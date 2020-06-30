@@ -4,7 +4,7 @@ import com.permision.annotation.Permission
 import com.permision.annotation.PermissionCancel
 import com.permision.annotation.PermissionDenied
 import com.permision.annotation.ShouldShowRequestRationale
-import com.permision.uitls.AOPContextHelper
+import com.permision.uitls.PermissionContextWrapper
 import com.permision.permissions.IPermissionCallback
 import com.permision.permissions.PermissionActivity
 import com.permision.permissions.PermissionUtils
@@ -39,7 +39,7 @@ PermissionAspect {
     ) {//名字和@annotation(permission)保持一致
 
         val obj = joinPoint.getThis()//被Aspect的对象
-        val context = AOPContextHelper.findContext(obj)  //你可以拿到上下文对象
+        val context = PermissionContextWrapper.findContext(obj)  //你可以拿到上下文对象
         PermissionActivity.requestPermissionAction(
             context,
             permission.value,
@@ -81,13 +81,13 @@ PermissionAspect {
             isIntercepted = (isIntercepted is Boolean) && !isIntercepted
             if (isShowRationale && isIntercepted) {
                 PermissionUtils.startAndroidSettings(
-                    AOPContextHelper.findContext(obj),
+                    PermissionContextWrapper.findContext(obj),
                     *permissions
                 )
             }
         } else if (annotationClass == ShouldShowRequestRationale::class.java) {
             // 用户不定义接收ShouldShowRequestRationale的方法，那么直接默认跳转系统设置
-            PermissionUtils.startAndroidSettings(AOPContextHelper.findContext(obj), *permissions)
+            PermissionUtils.startAndroidSettings(PermissionContextWrapper.findContext(obj), *permissions)
         }
     }
 

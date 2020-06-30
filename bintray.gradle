@@ -1,20 +1,15 @@
-// 应用插件
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 
+version = "1.1.0"
+group = "com.github" //一般填你唯一的包名
 
-//配置发布版本----------satrt----------
-//配置版本
-version = "1.0.1"
-group = "com.github"         //todo Maven Group ID for the artifact，一般填你唯一的包名
-//配置发布版本----------end----------
-
-
-def baseUrl = 'https://github.com/WDevaloper/android_permission'//todo 项目的主页
-def gitUrl = baseUrl//todo Git仓库的url
+//todo 项目的主页
+def baseUrl = 'https://github.com/WDevaloper/android_permission'
+//todo Git仓库的url
+def gitUrl = baseUrl
 def issueUrl = "${gitUrl}/issues"
 def siteUrl = baseUrl
-
 
 install {
     repositories {
@@ -53,28 +48,10 @@ install {
     }
 }
 
-
-// 强制 Java/JavaDoc 等的编码为 UTF-8
-tasks.withType(JavaCompile) {
-    options.encoding = "UTF-8"
-}
-
-
-//生成源文件
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
-}
-
-
-
-//上传到JCenter所需要的源码文件
-artifacts {
-    archives sourcesJar
-}
-
-def BINTRAY_USER = 'fayou'//todo your bintray user name   bintray的用户名,用户名不是组织名
-def BINTRAY_APIKEY = 'a13bd2b94425edd2101f266c5d624ceb987b4ffb' //todo APIKEY
+//todo your bintray user name   bintray的用户名,用户名不是组织名
+def BINTRAY_USER = 'fayou'
+//todo APIKEY
+def BINTRAY_APIKEY = 'a13bd2b94425edd2101f266c5d624ceb987b4ffb'
 
 //配置上传Bintray相关信息
 bintray {
@@ -82,13 +59,14 @@ bintray {
     key = BINTRAY_APIKEY
     configurations = ['archives']
     pkg {
-        repo = 'AndroidPermission' //todo 上传到中央仓库的名称（重要，仓库名称 repository）
-        name = 'android-permission-aop'
+        //todo 上传到中央仓库的名称（重要，仓库名称 repository）
+        repo = 'AndroidPermission'
         //todo 上传到jcenter 的项目名称（bintray上的包名就是项目名）需要记住的是：在bintray创建包时version contrl 填github项目地址或者其他版本控制地址
-        userOrg = 'develop-fayou'//todo 如果有组织就必须填写组织的名字，否则填写用户名称
+        name = 'android-permission-aop'
+        //todo 如果有组织就必须填写组织的名字，否则填写用户名称
+        userOrg = 'develop-fayou'
         desc = 'androidPermission - A flexible, stable, easy-to-use Android Permission Library'
-        // 项目描述
-        websiteUrl = siteUrl
+        websiteUrl = siteUrl // 项目描述
         issueTrackerUrl = issueUrl
         vcsUrl = gitUrl
         labels = ['android', 'permission']
@@ -96,10 +74,3 @@ bintray {
         publish = true
     }
 }
-
-//使用：
-//还没有审核通过的使用方式
-//在主gradle中添加：
-// 1、maven { url 'https://dl.bintray.com/develop-fayou/wangfayou-plugin' }
-// 2、classpath 'com.github.plugin:buildSrc:1.0.2'
-//在app gradle中添加：apply plugin: 'moduleComponent'

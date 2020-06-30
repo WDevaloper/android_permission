@@ -13,7 +13,7 @@ import java.lang.RuntimeException
  * Aspectj 获取Context对象
  *
  */
-object AOPContextHelper {
+object PermissionContextWrapper {
     private var appContext: Context? = null
 
     @JvmStatic
@@ -43,7 +43,7 @@ object AOPContextHelper {
             is Dialog -> obj.context // 在Dialog中使用
             is PopupWindow -> obj.contentView.context
             else -> return appContext
-                ?: throw RuntimeException("AOPContextHelper IS Around Joint Point Error:context == null")
+                ?: throw RuntimeException("PermissionContextWrapper IS Around Joint Point Error:context == null")
         }
     }
 }
