@@ -19,6 +19,7 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-keep public class * extends com.permision.aop.CheckStatus
 -keep class com.permision.annotation.**
 -keep @com.permision.annotation.** class * {*;}
 -keepclasseswithmembers class * {@com.permision.annotation.** <methods>;}

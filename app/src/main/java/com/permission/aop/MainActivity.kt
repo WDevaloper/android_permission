@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import com.permision.annotation.Check
 import com.permision.annotation.Permission
 
 class MainActivity : AppCompatActivity() {
@@ -14,7 +15,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
     }
 
+
+    @Check(LoginCheckStatus::class, code = 200)
     fun click(view: View) {
+        Log.e("tag","click")
         testPermision()
     }
 

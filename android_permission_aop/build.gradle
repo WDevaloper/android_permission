@@ -30,6 +30,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.1.0'
     api 'org.aspectj:aspectjrt:1.8.14'
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 }
 
 //生成源文件
