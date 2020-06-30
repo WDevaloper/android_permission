@@ -1,6 +1,9 @@
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
 version = "1.1.2"
 group = "com.github" //一般填你唯一的包名
 
@@ -31,9 +34,9 @@ install {
                 //添加开发者信息
                 developers {
                     developer {
-                        id 'wangfayou'        //填写的一些基本信息
-                        name 'wangfayou'
-                        email 'coder.wangfayou@gmail.com'
+                        id properties.getProperty("_user_id")        //填写的一些基本信息
+                        name properties.getProperty("_user_name")
+                        email properties.getProperty("_user_email")
                     }
                 }
 
@@ -48,10 +51,11 @@ install {
     }
 }
 
+
 //todo your bintray user name   bintray的用户名,用户名不是组织名
-def BINTRAY_USER = 'fayou'
+def BINTRAY_USER = properties.getProperty("bintray_user")
 //todo APIKEY
-def BINTRAY_APIKEY = 'a13bd2b94425edd2101f266c5d624ceb987b4ffb'
+def BINTRAY_APIKEY = properties.getProperty("bintray_apikey")
 
 //配置上传Bintray相关信息
 bintray {
@@ -64,7 +68,7 @@ bintray {
         //todo 上传到jcenter 的项目名称（bintray上的包名就是项目名）需要记住的是：在bintray创建包时version contrl 填github项目地址或者其他版本控制地址
         name = 'android-permission-aop'
         //todo 如果有组织就必须填写组织的名字，否则填写用户名称
-        userOrg = 'develop-fayou'
+        userOrg = properties.getProperty("bintray_user_org")
         desc = 'androidPermission - A flexible, stable, easy-to-use Android Permission Library'
         websiteUrl = siteUrl // 项目描述
         issueTrackerUrl = issueUrl
