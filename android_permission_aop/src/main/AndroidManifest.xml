@@ -3,6 +3,7 @@
     <application>
         <activity
             android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:name="com.permision.permissions.PermissionActivity"
             android:theme="@style/OnePixelPermissionActivity" />
     </application>
