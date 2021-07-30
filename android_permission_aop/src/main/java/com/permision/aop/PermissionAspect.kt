@@ -1,9 +1,8 @@
 package com.permision.aop
 
-import com.permision.annotation.Permission
-import com.permision.annotation.PermissionCancel
-import com.permision.annotation.PermissionDenied
-import com.permision.annotation.ShouldShowRequestRationale
+import android.content.Context
+import com.permision.PermissionDescCall
+import com.permision.annotation.*
 import com.permision.uitls.PermissionContextWrapper
 import com.permision.permissions.IPermissionCallback
 import com.permision.permissions.PermissionActivity
@@ -40,6 +39,38 @@ PermissionAspect {
 
         val obj = joinPoint.getThis()//被Aspect的对象
         val context = PermissionContextWrapper.findContext(obj)  //你可以拿到上下文对象
+
+        val invokeMethod = findInvokeMethod(obj, PermissionDescription::class.java)
+
+        // 没有找到 权限描述 的方法  所以直接进入正常申请权限流程
+        if (invokeMethod == null) {
+            realRequestPermission(context, permission, joinPoint, obj)
+            return
+        }
+
+
+        val parameterTypes = invokeMethod.parameterTypes
+        if (parameterTypes.isEmpty() ||
+            !parameterTypes[0].isAssignableFrom(
+                PermissionDescCall::class.java
+            )
+        ) {
+            throw RuntimeException("被@PermissionDescription 标注的方法 第一个参数必须是： PermissionDescCall类型")
+        }
+
+        invokeMethod.invoke(obj, object : PermissionDescCall {
+            override fun invoke() {
+                realRequestPermission(context, permission, joinPoint, obj)
+            }
+        })
+    }
+
+    private fun realRequestPermission(
+        context: Context,
+        permission: Permission,
+        joinPoint: ProceedingJoinPoint,
+        obj: Any
+    ) {
         PermissionActivity.requestPermissionAction(
             context,
             permission.value,
@@ -87,7 +118,10 @@ PermissionAspect {
             }
         } else if (annotationClass == ShouldShowRequestRationale::class.java) {
             // 用户不定义接收ShouldShowRequestRationale的方法，那么直接默认跳转系统设置
-            PermissionUtils.startAndroidSettings(PermissionContextWrapper.findContext(obj), *permissions)
+            PermissionUtils.startAndroidSettings(
+                PermissionContextWrapper.findContext(obj),
+                *permissions
+            )
         }
     }
 
