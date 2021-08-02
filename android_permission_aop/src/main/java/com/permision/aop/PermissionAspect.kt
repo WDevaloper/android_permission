@@ -40,7 +40,8 @@ PermissionAspect {
         val obj = joinPoint.getThis()//被Aspect的对象
         val context = PermissionContextWrapper.findContext(obj)  //你可以拿到上下文对象
 
-        val invokeMethod = findInvokeMethod(obj, PermissionDescription::class.java)
+        val invokeMethod =
+            findInvokeMethod(obj, permission.requestCode, PermissionDescription::class.java)
 
         // 没有找到 权限描述 的方法  所以直接进入正常申请权限流程
         if (invokeMethod == null) {
@@ -51,9 +52,7 @@ PermissionAspect {
 
         val parameterTypes = invokeMethod.parameterTypes
         if (parameterTypes.isEmpty() ||
-            !parameterTypes[0].isAssignableFrom(
-                PermissionDescCall::class.java
-            )
+            !parameterTypes[0].isAssignableFrom(PermissionDescCall::class.java)
         ) {
             throw RuntimeException("被@PermissionDescription 标注的方法 第一个参数必须是： PermissionDescCall类型")
         }
@@ -66,10 +65,8 @@ PermissionAspect {
     }
 
     private fun realRequestPermission(
-        context: Context,
-        permission: Permission,
-        joinPoint: ProceedingJoinPoint,
-        obj: Any
+        context: Context, permission: Permission,
+        joinPoint: ProceedingJoinPoint, obj: Any
     ) {
         PermissionActivity.requestPermissionAction(
             context,
@@ -81,15 +78,24 @@ PermissionAspect {
                 }
 
                 override fun denied() {
-                    handleAction(obj, PermissionDenied::class.java)
+                    handleAction(
+                        obj,
+                        permission.requestCode, PermissionDenied::class.java
+                    )
                 }
 
                 override fun shouldShowRequestPermissionRationale(vararg permissions: String) {
-                    handleAction(obj, ShouldShowRequestRationale::class.java, *permissions)
+                    handleAction(
+                        obj,
+                        permission.requestCode, ShouldShowRequestRationale::class.java, *permissions
+                    )
                 }
 
                 override fun cancel() {
-                    handleAction(obj, PermissionCancel::class.java)
+                    handleAction(
+                        obj,
+                        permission.requestCode, PermissionCancel::class.java
+                    )
                 }
             }
         )
@@ -98,10 +104,13 @@ PermissionAspect {
     @Throws(RuntimeException::class)
     private fun handleAction(
         obj: Any,
+        requestCode: Int,
         annotationClass: Class<out Annotation>,
-        vararg permissions: String
+        vararg permissions: String = emptyArray()
     ) {
-        val invokeMethod = findInvokeMethod(obj, annotationClass)
+        val invokeMethod =
+            findInvokeMethod(obj, requestCode, annotationClass)
+
         if (invokeMethod != null) {
             //用户定义了接收shouldShowRequestPermissionRationale的方法，
             // 那么如果方法有返回值，并且是Boolean，那么就是表示是否拦截处理，
@@ -125,15 +134,25 @@ PermissionAspect {
         }
     }
 
-    private fun findInvokeMethod(obj: Any, annotationClass: Class<out Annotation>): Method? {
-        var invokeMethod: Method? = null
-        obj.javaClass.declaredMethods.asSequence().forEach {
-            if (it.isAnnotationPresent(annotationClass)) {
-                it.isAccessible = true
-                invokeMethod = it
-                return invokeMethod  //需要注意的是 return@forEach只是结束本次循环和continue类似，return 就是结束最外层函数，
-            }
-        }
-        return invokeMethod
+    private fun findInvokeMethod(
+        obj: Any,
+        requestCode: Int,
+        annotationClass: Class<out Annotation>
+    ): Method? {
+        return obj.javaClass.declaredMethods.find {
+            // 通过 requestCode确定调用的方法
+            it.isAnnotationPresent(annotationClass) &&
+                    requestCode == getRequestCode(it.getAnnotation(annotationClass))
+        }?.also { it.isAccessible = true }
     }
+
+
+    private fun getRequestCode(annotation: Annotation?): Int =
+        when (annotation) {
+            is PermissionDescription -> annotation.requestCode
+            is PermissionDenied -> annotation.requestCode
+            is PermissionCancel -> annotation.requestCode
+            is ShouldShowRequestRationale -> annotation.requestCode
+            else -> -1
+        }
 }
