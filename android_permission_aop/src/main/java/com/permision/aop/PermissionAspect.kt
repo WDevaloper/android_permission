@@ -40,20 +40,27 @@ PermissionAspect {
         val obj = joinPoint.getThis()//被Aspect的对象
         val context = PermissionContextWrapper.findContext(obj)  //你可以拿到上下文对象
 
-        val invokeMethod =
-            findInvokeMethod(obj, permission.requestCode, PermissionDescription::class.java)
+        // 检查用户是否已经授予给定权限
+        if (PermissionUtils.hasSelfPermissions(context, *permission.value)) {
+            return
+        }
 
-        // 没有找到 权限描述 的方法  所以直接进入正常申请权限流程
+        // 优先找 @PermissionDescription标志的方法
+        val invokeMethod =
+            findPermissionMethodByAnnotation(
+                obj,
+                permission.requestCode, PermissionDescription::class.java
+            )
+
+        // 没有找到权限描述的方法,那么直接进入正常申请权限流程
         if (invokeMethod == null) {
             realRequestPermission(context, permission, joinPoint, obj)
             return
         }
 
-
+        // 先处理 权限 描述    被 @PermissionDescription标志的方法，第一个参数必须是： PermissionDescCall类型
         val parameterTypes = invokeMethod.parameterTypes
-        if (parameterTypes.isEmpty() ||
-            !parameterTypes[0].isAssignableFrom(PermissionCall::class.java)
-        ) {
+        if (parameterTypes.isEmpty() || !parameterTypes[0].isAssignableFrom(PermissionCall::class.java)) {
             throw RuntimeException("被@PermissionDescription 标注的方法 第一个参数必须是： PermissionDescCall类型")
         }
 
@@ -109,7 +116,7 @@ PermissionAspect {
         vararg permissions: String = emptyArray()
     ) {
         val invokeMethod =
-            findInvokeMethod(obj, requestCode, annotationClass)
+            findPermissionMethodByAnnotation(obj, requestCode, annotationClass)
 
         if (invokeMethod != null) {
             //用户定义了接收shouldShowRequestPermissionRationale的方法，
@@ -132,7 +139,7 @@ PermissionAspect {
         }
     }
 
-    private fun findInvokeMethod(
+    private fun findPermissionMethodByAnnotation(
         obj: Any,
         requestCode: Int,
         annotationClass: Class<out Annotation>
