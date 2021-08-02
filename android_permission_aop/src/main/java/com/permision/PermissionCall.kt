@@ -1,5 +1,5 @@
 package com.permision
 
-interface PermissionDescCall {
+interface PermissionCall {
     fun invoke()
 }

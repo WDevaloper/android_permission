@@ -1,13 +1,12 @@
 package com.permission.aop
 
 import android.Manifest
-import android.content.DialogInterface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AlertDialog
-import com.permision.PermissionDescCall
+import com.permision.PermissionCall
 import com.permision.annotation.Check
 import com.permision.annotation.Permission
 import com.permision.annotation.PermissionDenied
@@ -32,19 +31,48 @@ class MainActivity : AppCompatActivity() {
         testPermision()
     }
 
+
+    fun click3(view: View) {
+        testPermision1()
+    }
+
+
+    @PermissionDescription(200)
+    private fun permissionDescription1(call: PermissionCall) {
+        Log.e("tag", "permissionDescription1")
+        onPermissionDescription(call)
+    }
+
     @Permission(Manifest.permission.WRITE_EXTERNAL_STORAGE, requestCode = 200)
     private fun testPermision() {
         Log.e("tag", "Manifest.permission.WRITE_EXTERNAL_STORAGE")
     }
 
 
-    @PermissionDenied(requestCode = 200)
+    @PermissionDenied(200)
     private fun dPermision() {
         Log.e("tag", "dPermision")
     }
 
 
-    private fun onPermissionDescription(call: PermissionDescCall) {
+    @PermissionDescription(201)
+    private fun permissionDescription2(call: PermissionCall) {
+        Log.e("tag", "permissionDescription2")
+        onPermissionDescription(call)
+    }
+
+    @Permission(Manifest.permission.CAMERA, requestCode = 201)
+    private fun testPermision1() {
+        Log.e("tag", "CAMERA")
+    }
+
+    @PermissionDenied(201)
+    private fun dPermision2() {
+        Log.e("tag", "dPermision2")
+    }
+
+
+    private fun onPermissionDescription(call: PermissionCall) {
         Log.e("tag", "onPermissionDescription")
 
         AlertDialog.Builder(this)

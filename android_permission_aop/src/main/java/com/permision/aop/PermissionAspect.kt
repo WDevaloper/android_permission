@@ -1,7 +1,7 @@
 package com.permision.aop
 
 import android.content.Context
-import com.permision.PermissionDescCall
+import com.permision.PermissionCall
 import com.permision.annotation.*
 import com.permision.uitls.PermissionContextWrapper
 import com.permision.permissions.IPermissionCallback
@@ -52,12 +52,12 @@ PermissionAspect {
 
         val parameterTypes = invokeMethod.parameterTypes
         if (parameterTypes.isEmpty() ||
-            !parameterTypes[0].isAssignableFrom(PermissionDescCall::class.java)
+            !parameterTypes[0].isAssignableFrom(PermissionCall::class.java)
         ) {
             throw RuntimeException("被@PermissionDescription 标注的方法 第一个参数必须是： PermissionDescCall类型")
         }
 
-        invokeMethod.invoke(obj, object : PermissionDescCall {
+        invokeMethod.invoke(obj, object : PermissionCall {
             override fun invoke() {
                 realRequestPermission(context, permission, joinPoint, obj)
             }
@@ -121,15 +121,13 @@ PermissionAspect {
             isIntercepted = (isIntercepted is Boolean) && !isIntercepted
             if (isShowRationale && isIntercepted) {
                 PermissionUtils.startAndroidSettings(
-                    PermissionContextWrapper.findContext(obj),
-                    *permissions
+                    PermissionContextWrapper.findContext(obj), *permissions
                 )
             }
         } else if (annotationClass == ShouldShowRequestRationale::class.java) {
             // 用户不定义接收ShouldShowRequestRationale的方法，那么直接默认跳转系统设置
             PermissionUtils.startAndroidSettings(
-                PermissionContextWrapper.findContext(obj),
-                *permissions
+                PermissionContextWrapper.findContext(obj), *permissions
             )
         }
     }
