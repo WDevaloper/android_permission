@@ -42,6 +42,7 @@ PermissionAspect {
 
         // 检查用户是否已经授予给定权限
         if (PermissionUtils.hasSelfPermissions(context, *permission.value)) {
+            joinPoint.proceed(joinPoint.args)
             return
         }
 
